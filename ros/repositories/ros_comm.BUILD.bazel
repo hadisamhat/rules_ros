@@ -155,6 +155,38 @@ expand_template(
     template = "@rules_ros//ros/repositories:ros_logging_config.py.tpl",
 )
 
+# rosmsg's package/message enumeration helpers (iterate_packages, _list_types)
+# are pure filesystem walks, but the module imports catkin and roslib at module
+# scope. catkin is not packaged here at all and roslib has no target; both are
+# needed only by rosmsg's CLI display helpers and by the devel-space lookup in
+# _get_package_paths, none of which apply inside a Bazel sandbox. They are
+# neutralised here so the enumeration helpers can be used standalone.
+genrule(
+    name = "rosmsg_standalone_py",
+    srcs = ["tools/rosmsg/src/rosmsg/__init__.py"],
+    outs = ["rosmsg_standalone/rosmsg/__init__.py"],
+    cmd = " ".join([
+        "sed -E",
+        "-e 's/^from catkin.find_in_workspaces import find_in_workspaces$$/find_in_workspaces = None/'",
+        "-e 's/^import roslib.message$$/roslib = None/'",
+        "-e 's/^( *)results = find_in_workspaces.*/\\1results = None/'",
+        "$< > $@",
+    ]),
+)
+
+py_library(
+    name = "rosmsg",
+    srcs = [":rosmsg_standalone_py"],
+    imports = ["rosmsg_standalone"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@ros_genmsg//:genmsg",
+        "@ros_genpy//:genpy",
+        requirement("pyyaml"),
+        requirement("rospkg"),
+    ],
+)
+
 py_library(
     name = "rosgraph_lib",
     srcs = glob(["tools/rosgraph/src/**/*.py"]) + [_LOGGING_CONFIG_PY],
