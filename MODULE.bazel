@@ -1,4 +1,7 @@
-module(name = "rules_ros")
+module(
+    name = "rules_ros",
+    version = "0.2.0-79-g47fb64c.iw.1",
+)
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
@@ -55,14 +58,14 @@ use_repo(
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(
     is_default = True,
-    python_version = "3.10",
+    python_version = "3.12",
 )
-use_repo(python, "python_3_10", "python_versions")
+use_repo(python, "python_3_12", "python_versions")
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
     hub_name = "rules_ros_pip_deps",
-    python_version = "3.10",
+    python_version = "3.12",
     requirements_lock = "@rules_ros//:requirements_lock.txt",
 )
 use_repo(pip, "rules_ros_pip_deps")
