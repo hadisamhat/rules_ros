@@ -1,13 +1,27 @@
-Replace distutils.spawn.find_executable (removed-in-3.12 distutils) with the
-stdlib shutil.which, which has identical semantics for find_executable('du').
+Skip logging.config.fileConfig()/dictConfig() in configure_logging: on Python
+3.12 they wedge roscore/roslaunch on the first processed log record, before the
+ROS master starts (verified: skipping it lets the master come up). Logging falls
+back to the default root logger so warnings/errors still reach stderr.
 
---- a/tools/rosclean/src/rosclean/__init__.py
-+++ b/tools/rosclean/src/rosclean/__init__.py
-@@ -37,6 +37,6 @@ import platform
- import platform
- import subprocess
- import sys
--from distutils.spawn import find_executable
-+from shutil import which as find_executable
+--- a/tools/rosgraph/src/rosgraph/roslogging.py
++++ b/tools/rosgraph/src/rosgraph/roslogging.py
+@@ -188,14 +188,10 @@ def configure_logging(logname, level=logging.INFO, filename=None, env=None):
+         return log_filename
  
- import rospkg
+     # pass in log_filename as argument to pylogging.conf
+     os.environ['ROS_LOG_FILENAME'] = log_filename
+-    if config_file.endswith(('.yaml', '.yml')):
+-        with open(config_file) as f:
+-            dict_conf = yaml.safe_load(f)
+-        dict_conf.setdefault('version', 1)
+-        logging.config.dictConfig(dict_conf)
+-    else:
+-        # #3625: disabling_existing_loggers=False
+-        logging.config.fileConfig(config_file, disable_existing_loggers=False)
+-
++    # NOTE(iw): logging.config.fileConfig()/dictConfig() deadlock roscore/
++    # roslaunch on Python 3.12 -- the first log record processed after the config
++    # is applied wedges the single-threaded process before the ROS master starts.
++    # Skip applying the config so the master comes up; logging falls back to the
++    # default root logger (WARNING), so warnings/errors still reach stderr.
+     return log_filename
