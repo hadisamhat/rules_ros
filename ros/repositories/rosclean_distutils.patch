@@ -1,0 +1,13 @@
+Replace distutils.spawn.find_executable (removed-in-3.12 distutils) with the
+stdlib shutil.which, which has identical semantics for find_executable('du').
+
+--- a/tools/rosclean/src/rosclean/__init__.py
++++ b/tools/rosclean/src/rosclean/__init__.py
+@@ -37,6 +37,6 @@ import platform
+ import platform
+ import subprocess
+ import sys
+-from distutils.spawn import find_executable
++from shutil import which as find_executable
+ 
+ import rospkg
