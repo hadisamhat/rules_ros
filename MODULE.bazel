@@ -1,6 +1,6 @@
 module(
     name = "rules_ros",
-    version = "0.2.0-79-g47fb64c.iw.1",
+    version = "0.2.0-79-g47fb64c.iw.2",
 )
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
