@@ -379,7 +379,7 @@ py_library(
         ":py_topic_tools",
         ":rospy",
         "@rules_ros//third_party/ros:roslib",
-        requirement("gnupg"),
+        requirement("python-gnupg"),
         requirement("pycryptodomex"),
         requirement("rospkg"),
     ],
