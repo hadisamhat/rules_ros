@@ -27,7 +27,7 @@ docutils==0.18.1 \
 empy==3.3.4 \
     --hash=sha256:73ac49785b601479df4ea18a7c79bc1304a8a7c34c02b9472cf1206ae88f01b3
     # via -r requirements.txt
-gnupg==2.3.1 \
+python-gnupg==0.5.6 \
     --hash=sha256:8db5a05c369dbc231dab4c98515ce828f2dffdc14f1534441a6c59b71c6d2031
     # via -r requirements.txt
 ifaddr==0.1.7 \
